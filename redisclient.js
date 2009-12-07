@@ -39,7 +39,7 @@ var Client = exports.Client = function (port, host) {
 
 // Callback a function after we've ensured we're connected to Redis.
 
-Client.prototype.connect = function (callback_on_connect) {
+Client.prototype.connect = function (callback_on_connect, callback_on_error) {
   var self = this;
   if (this.conn && this.conn.readyState === "open") {
     if (typeof(callback_on_connect) === "function")
@@ -60,8 +60,7 @@ Client.prototype.connect = function (callback_on_connect) {
       self.handle_replies();
     });
     this.conn.addListener("close", function (encountered_error) {
-      if (encountered_error) 
-        throw new Error("redis server up?");
+      if (encountered_error && callback_on_error) callback_on_error();
     });
     this.conn.connect(this.port, this.host);
   }
